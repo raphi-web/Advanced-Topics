@@ -32,7 +32,7 @@ class Pointcloud():
     def points(self):
         return [p for p in self]
 
-    @property 
+    @property
     def kdtree(self):
         return self.__kdtree
 
@@ -49,7 +49,6 @@ class Pointcloud():
         ymin = self.__points[:, 1].min()
         ymax = self.__points[:, 1].max()
         return xmin, xmax, ymin, ymax
-
 
     def closest_pair(self):
         # sort by x
@@ -82,16 +81,15 @@ class Pointcloud():
 
         return min_distance, point_pair
 
+    def k_nearest_neighbour_kdtree(self, other_pointcloud):
 
-    def k_nearest_neighbour_kdtree(self,other_pointcloud):
-       
         tree = other_pointcloud.kdtree
         _, indexes = tree.query(self.as_array())
         nearest_points = [other_pointcloud[i] for i in indexes]
-        
+
         return nearest_points
 
-    def k_nearest_neighbour_bf(self,other_pointcloud):
+    def k_nearest_neighbour_bf(self, other_pointcloud):
         other_points = other_pointcloud.points
         result = []
         for point in self:
@@ -100,7 +98,6 @@ class Pointcloud():
 
         return result
 
-
     @staticmethod
     def gen_random_points(n, xmin, xmax, ymin, ymax):
 
@@ -108,8 +105,6 @@ class Pointcloud():
         y = np.random.random(size=int(n)) * (ymax - ymin) + ymin
 
         return Pointcloud(x, y)
-
-
 
     @staticmethod
     def __closest_pair_bf(points):
