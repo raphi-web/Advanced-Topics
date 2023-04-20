@@ -19,7 +19,6 @@ def get_buildings(city):
     return get_with_tags(city, params)
 
 
-
 if __name__ == "__main__":
     bus_stops = get_bus_stops("Graz")
     buildings = get_buildings("Graz")
