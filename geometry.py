@@ -1,5 +1,6 @@
 import numpy as np
-
+import warnings 
+warnings.filterwarnings('ignore')
 
 class Point():
 
@@ -25,10 +26,15 @@ class Point():
         return np.sqrt(a**2 + b**2)
 
     def __str__(self) -> str:
+      
+        return f"POINT ({self.x} {self.y})"
+
+    def __repr__(self) -> str:
         return f"POINT ({self.x} {self.y})"
 
     def __eq__(self, other) -> bool:
         return (self.x == other.x) & (self.y == other.y)
+
 
 
 class Line():
@@ -80,13 +86,7 @@ class Line():
         q_min_p_cross_r = np.cross((q - p), r)
 
         t = q_min_p_cross_s / r_cross_s
-        if np.isnan(t):
-            return (False, None)
-
         u = q_min_p_cross_r / r_cross_s
-
-        if np.isnan(u):
-            return (False, None)
 
         if r_cross_s == 0 and q_min_p_cross_r == 0:
 
@@ -118,26 +118,31 @@ class Line():
             else:
                 # lines do not touch but do they overlap?
                 # check if x or y values overlap somewhere
-                x_vals = [q_1.x, q_2.x, p_1.x, p_2.x]
-                y_vals = [q_1.y, q_2.y, p_1.y, p_2.y]
-                overlap = (min(x_vals) < max(x_vals)) and (
-                    min(y_vals) < max(y_vals))
+                x_vals = sorted([q_1.x, q_2.x, p_1.x, p_2.x])
+                y_vals = sorted([q_1.y, q_2.y, p_1.y, p_2.y])
+                x_min = x_vals[0]
+                x_max = x_vals[-1]
+                y_min = y_vals[0]
+                y_max = y_vals[-1]
+                overlap = (x_min < x_max) and (y_min < y_max)
                 if overlap:
-                    return (True, q + u*s)
+                    p_overlap_min = Point([x_vals[1],y_vals[1]])
+                    p_overlap_max = Point([x_vals[-2],y_vals[-2]])
+                    return (True, (p_overlap_min,p_overlap_max))
                 else:
                     return (False, None)
 
-        elif r_cross_s == 0 and q_min_p_cross_r != 0:
+        if r_cross_s == 0 and q_min_p_cross_r != 0:
             # parallel and non-intersecting
             return (False, None)
 
-        elif (r_cross_s != 0) and (0 <= t <= 1) and 0 <= u <= 1:
+        if (r_cross_s != 0) and (0 <= t <= 1) and 0 <= u <= 1:
             # lines intersect at point q + u*s
-            return (True, q + u * s)
+            return (True, Point(q + u * s))
 
-        else:
-            # non-intersecting and non-parallel
-            return (False, None)
+    
+        # non-intersecting and non-parallel
+        return (False, None)
 
 
 class Polygon():
@@ -261,15 +266,7 @@ if __name__ == "__main__":
     poly = Polygon.from_wkt(wkt)
     print(poly)
 
-    p1 = Point([-2, 0])
-    p2 = Point([3, 2])
-    q1 = Point([0, 3])
-    q2 = Point([4, 0])
 
-    line_a = Line(p1, p2)
-    line_b = Line(q1, q2)
-
-    print(line_a.intersects(line_b))
 
     p1 = Point([0, 0])
     p2 = Point([1, 1])
@@ -277,7 +274,7 @@ if __name__ == "__main__":
     q2 = Point([1, 0])
     line_a = Line(p1, p2)
     line_b = Line(q1, q2)
-    print(line_a.intersects(line_b))
+    print("Should intersect:",line_a.intersects(line_b))
 
     p1 = Point([0, 0])
     p2 = Point([1, 1])
@@ -285,15 +282,7 @@ if __name__ == "__main__":
     q2 = Point([1, 3])
     line_a = Line(p1, p2)
     line_b = Line(q1, q2)
-    print(line_a.intersects(line_b))
-
-    p1 = Point([0, 0])
-    p2 = Point([0, 1])
-    q1 = Point([1, 0])
-    q2 = Point([1, 1])
-    line_a = Line(p1, p2)
-    line_b = Line(q1, q2)
-    print(line_a.intersects(line_b))
+    print("Should not intersect: ",line_a.intersects(line_b))
 
     p1 = Point([0, 0])
     p2 = Point([1, 1])
@@ -301,7 +290,7 @@ if __name__ == "__main__":
     q2 = Point([1, 0.5])
     line_a = Line(p1, p2)
     line_b = Line(q1, q2)
-    print(line_a.intersects(line_b))
+    print("Should Intersect  ",line_a.intersects(line_b))
 
     p1 = Point([0, 0])
     p2 = Point([2, 2])
@@ -309,4 +298,4 @@ if __name__ == "__main__":
     q2 = Point([3, 3])
     line_a = Line(p1, p2)
     line_b = Line(q1, q2)
-    print(line_a.intersects(line_b))
+    print("Should Intersect:",line_a.intersects(line_b))
