@@ -1,5 +1,8 @@
 import datetime
-class Timer():
+class Timer:
+    """
+    a simple timer to track the runtime of functions and methods
+    """
     def __init__(self, label=""):
         self.label = label
 

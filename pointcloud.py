@@ -1,10 +1,14 @@
-from geometry import Point
+from typing import Tuple
+
+from my_geometries import Point
 import numpy as np
 from scipy.spatial import KDTree
 
 
-class Pointcloud():
-
+class Pointcloud:
+    """
+    Represents a collection of 2D Points
+    """
     def __init__(self, x, y):
         self.__points = np.array([x, y]).T
         self.__kdtree = KDTree(self.__points)
@@ -43,6 +47,10 @@ class Pointcloud():
         return self.__points.shape[0]
 
     def bounds(self):
+        """
+        x-min, x-max, y-min,y-max
+        :return: tuple[float,float,float,float]
+        """
         xmin = self.__points[:, 0].min()
         xmax = self.__points[:, 0].max()
 
@@ -50,12 +58,17 @@ class Pointcloud():
         ymax = self.__points[:, 1].max()
         return xmin, xmax, ymin, ymax
 
-    def closest_pair(self):
+    def closest_pair(self) -> Tuple[float, Tuple[Point,Point]]:
+        """
+        find the closest pair of points in point cloud using divide and conquer
+        https://www.geeksforgeeks.org/closest-pair-of-points-using-divide-and-conquer-algorithm/
+        :return:
+        """
         # sort by x
         points = sorted([p for p in self], key=lambda p: p.x)
         return self.__closest_pair(points)
 
-    def __closest_pair(self, points):
+    def __closest_pair(self, points) -> Tuple[float, Tuple[Point,Point]]:
 
         if len(points) <= 3:
             return self.__closest_pair_bf(points)
@@ -82,7 +95,11 @@ class Pointcloud():
         return min_distance, point_pair
 
     def k_nearest_neighbour_kdtree(self, other_pointcloud):
-
+        """
+        uses a kdtree to find the k-nearest neighbour between two point clouds
+        :param other_pointcloud: Pointcloud B
+        :return: Point
+        """
         tree = other_pointcloud.kdtree
         _, indexes = tree.query(self.as_array())
         nearest_points = [other_pointcloud[i] for i in indexes]
@@ -90,17 +107,30 @@ class Pointcloud():
         return nearest_points
 
     def k_nearest_neighbour_bf(self, other_pointcloud):
+        """
+        uses brutal-force to find the k-nearest neighbour
+        :param other_pointcloud: Pointcloud B
+        :return:
+        """
         other_points = other_pointcloud.points
         result = []
         for point in self:
             nearest = min(other_points, key=lambda p: point.distance(p))
-            result.append((nearest))
+            result.append(nearest)
 
         return result
 
     @staticmethod
-    def gen_random_points(n, xmin, xmax, ymin, ymax):
-
+    def gen_random_points(n:float, xmin:float, xmax:float, ymin:float, ymax:float):
+        """
+        randomly generates points
+        :param n: number of points
+        :param xmin: minimum X value of points
+        :param xmax: maximum X value of points
+        :param ymin: minimum Y value of points
+        :param ymax: maximum Y value of points
+        :return: Pointcloud
+        """
         x = np.random.random(size=int(n)) * (xmax - xmin) + xmin
         y = np.random.random(size=int(n)) * (ymax - ymin) + ymin
 
@@ -108,6 +138,11 @@ class Pointcloud():
 
     @staticmethod
     def __closest_pair_bf(points):
+        """
+        implementation of k-nearest neighbour bf
+        :param points:
+        :return:
+        """
         distances = []
         for pa in points:
             distances_pa = []
@@ -121,6 +156,12 @@ class Pointcloud():
 
     @staticmethod
     def __slide_window(points, distance):
+        """
+        the sliding window used in the divide and conquer impl. of closest pair of points
+        :param points: list of Points
+        :param distance: minimum Distance
+        :return: new minimum Distance, the pair of closest Points
+        """
         # compare the
         window_size = 7
         length = len(points)
