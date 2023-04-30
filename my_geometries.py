@@ -133,6 +133,14 @@ class Edge():
         return self.__vertices[1]
 
     @property
+    def x(self):
+        return self.point_1.x, self.point_2.x 
+
+    @property
+    def y(self):
+        return self.point_1.y, self.point_2.y
+
+    @property
     def xy(self) -> 'tuple[list[float],list[float]]':
         return [self.point_1.x, self.point_2.x], [self.point_1.y, self.point_2.y]
 
