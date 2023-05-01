@@ -77,6 +77,7 @@ def orientation_analysis(G):
 
 
     #paper does not specify how the weights are calculated
+    # it says the bearing in multiplied by length, but this would result in angles > 360
     # I tried a lot but nothing worked
     #length_weights = sigmoidScaling(lengths,k=1,x0=-2)
     #max_length = max(lengths)
@@ -85,7 +86,10 @@ def orientation_analysis(G):
     #length_weights = [l/(max_length - min_length) for l in lengths]
     #length_weights = lengths
     #weighted_bearings = [b * w for b,w in zip(weighted_bearings,length_weights)]
-    
+
+    #weighted_bearings = [b * 1-(1/l) for b, l in zip(weighted_bearings, lengths)]
+    #f = lambda x: 1 - math.e**(-5*x)
+    #weighted_bearings = [ b * f(l) for b,l in zip(weighted_bearings, lengths)]
     bins_no_weight = __center_sort_to_bins(bearings)
     bins_with_weight = __center_sort_to_bins(weighted_bearings)
 
